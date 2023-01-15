@@ -69,10 +69,10 @@ When we load them later using numpy.load, we can use the keyword argument allow_
 
 """
 Checklist (update to True if you have understood the code):
-Part 1: False
-Part 2: False
-Part 3: False
-Part 4: False
+Part 1: True
+Part 2: True
+Part 3: True
+Part 4: True
 
 Understood it all? Give yourself a pat on the back and move on to process.py.
 """
