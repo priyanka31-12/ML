@@ -1,0 +1,42 @@
+Job:
+  run_mode: "Training"
+  Training:
+    model: 'NN'
+    seed: 0
+  CV:
+    model: 'NN'
+    cv_folds: 10
+    seed: 111111
+
+Processing:
+  reprocess: 0
+  # Path to data file
+  data_path: "data"
+  # SOAP specific settings
+  SOAP_rcut: 8.0
+  SOAP_nmax: 6
+  SOAP_lmax: 6
+  SOAP_sigma: 0.3
+  modify: 0
+  transform_mode: "none"
+  perovskite_only: 0
+
+Training:
+  loss: "MSELoss"
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+
+Model:
+  NN:
+    dim: 100
+    fc_count: 4
+    epochs: 100
+    lr: 0.001
+    batch_size: 100
+    optimizer: "Adam"
+
+  SVM:
+    kernel: "rbf"
+    C: 0.001
+    gamma: 1.0
