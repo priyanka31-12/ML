@@ -41,6 +41,18 @@ def get_targets(data, ids):
     
     return targets
 
+# Function to keep only the perovskites in data
+def get_perovskites(X, Y, ids, formula_pretty, formula_anonymous):
+    indices=[]
+    for i in range(len(X)):
+        if formula_anonymous[i] == 'ABC3' and formula_pretty[i][-2:] == 'O3':
+            indices.append(i)
+
+    X=X[indices]
+    Y=Y[indices]
+    ids=ids[indices]
+    return X, Y, ids
+
 # Function to get SOAP descriptors
 def get_soap_descriptors(data, ids, processing_args):
     # Get list of all elements
@@ -61,13 +73,13 @@ def get_soap_descriptors(data, ids, processing_args):
     for key in tqdm(ids):
         atoms=AseAtomsAdaptor().get_atoms(data[key][4]) # Create ase Atoms object from pymatgen Structure object
         descriptor=soap.create(atoms)   # Make SOAP descriptor
-        descriptors.append(descriptor)     # Add descriptor to dictionary
+        descriptors.append(descriptor)     # Add descriptor to list
     print('Number of descriptor features: ', len(descriptors[0]))
     return descriptors
 
 # Function to get data
 def get_data(processing_args):
-    if processing_args['reprocess'] or not os.path.exists(os.path.join(processing_args['data_path'], 'processed/data.pt')):
+    if processing_args['reprocess'] or not os.path.exists(os.path.join(processing_args['data_path'], 'processed/data.npz')):
         # Load data
         data=load_data(os.path.join(processing_args['data_path'], 'MP_full.npy'))
         ids=get_piezo_ids(data)
@@ -78,15 +90,22 @@ def get_data(processing_args):
         # Get targets
         Y=get_targets(data, ids)
 
-        # Remove 'mp' from IDs
-        for i in range(len(ids)):
-            id=str(ids[i])
-            ids[i]=int(id.split('-')[1])
+        # Get formula pretty
+        formula_pretty=[]
+        for key in ids:
+            formula_pretty.append(data[key][1])
+
+        # Get formula anonymous
+        formula_anonymous=[]
+        for key in ids:
+            formula_anonymous.append(data[key][2])
 
         # Convert to numpy arrays
         X=np.array(X)
         Y=np.array(Y)
         ids=np.array(ids)
+        formula_pretty=np.array(formula_pretty)
+        formula_anonymous=np.array(formula_anonymous)
 
         # Create folder for processed data if it does not exist
         if not os.path.isdir(os.path.join(processing_args['data_path'], 'processed')):
@@ -94,7 +113,7 @@ def get_data(processing_args):
 
         # Save as npz file
         print('Saving data...')
-        np.savez(os.path.join(processing_args['data_path'], 'processed/data.npz'), X=X, Y=Y, ids=ids)
+        np.savez(os.path.join(processing_args['data_path'], 'processed/data.npz'), X=X, Y=Y, ids=ids, formula_pretty=formula_pretty, formula_anonymous=formula_anonymous)
 
     else:
         # Load data
@@ -103,6 +122,11 @@ def get_data(processing_args):
         X=data['X']         # The array is accessed using the key 'X'. 
         Y=data['Y']
         ids=data['ids']
+        formula_pretty=data['formula_pretty']
+        formula_anonymous=data['formula_anonymous']
+
+    if processing_args['perovskite_only']:
+        X, Y, ids=get_perovskites(X, Y, ids, formula_pretty, formula_anonymous)
 
     return X, Y, ids
 
