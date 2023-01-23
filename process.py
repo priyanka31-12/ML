@@ -16,8 +16,8 @@ def load_data(path):
     # Load data from file
     print('Loading data...')
     data=np.load(path, allow_pickle=True).item()    # allow_pickle=True is required to load the pickled objects. The data is stored as numpy array, so we use .item() to convert it to its original type.
-
-    return data
+    # data is a dictionary with material IDs as keys and lists of properties as values
+    return data 
 
 # Function to get list of all material IDs with valid piezoelectricity values
 def get_piezo_ids(data):
